@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><Entities build="b535" majorVersion="8" minorVersion="3" modelPersistenceProviderPackage="H2PersistenceProviderPackage" revision="2" schemaVersion="1030" universal=""><StyleDefinitions><StyleDefinition aspect.isExtension="true" aspect.isThemeObject="true" description="Default Gantt Alternate Track Style" documentationContent="" homeMashup="" lastModifiedDate="2018-10-22T19:14:51.769+03:00" name="DefaultAlternativeGanttTrackStyle" projectName="" tags=""><Owner name="SuperUser" type="User"/><avatar/><DesignTimePermissions><Create/><Read/><Update/><Delete/><Metadata/></DesignTimePermissions><RunTimePermissions/><VisibilityPermissions><Visibility/></VisibilityPermissions><ConfigurationTableDefinitions/><ConfigurationTables/><content><![CDATA[{
+  "backgroundColor" : "#f5f5f5",
+  "displayString" : "",
+  "fontEmphasisBold" : false,
+  "fontEmphasisItalic" : false,
+  "fontEmphasisUnderline" : false,
+  "foregroundColor" : "",
+  "image" : "",
+  "lineColor" : "",
+  "lineStyle" : "solid",
+  "lineThickness" : 0,
+  "secondaryBackgroundColor" : "",
+  "textSize" : "normal"
+}]]></content><ConfigurationChanges><ConfigurationChange changeAction="CREATE" changeReason="Importing Extension Package Metadata" timestamp="2018-10-22T19:14:51.769+03:00" user="SuperUser"/></ConfigurationChanges></StyleDefinition></StyleDefinitions></Entities>

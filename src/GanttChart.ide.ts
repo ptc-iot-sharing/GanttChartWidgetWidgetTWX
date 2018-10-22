@@ -1,9 +1,15 @@
-﻿TW.IDE.Widgets.ganttChart = function () {
-    this.widgetIconUrl = function() {
-        return  "../Common/extensions/GanttChartExtension/ui/ganttChart/ganttChart.ide.png";
-    };
+// automatically import the css file
+import { ThingworxComposerWidget } from 'typescriptwebpacksupport';
 
-    this.widgetProperties = function () {
+@ThingworxComposerWidget
+class GanttChartWidget extends TWComposerWidget {
+
+    widgetIconUrl(): string {
+        return require('./images/icon.png');
+    }
+
+    widgetProperties(): TWWidgetProperties {
+        require("./styles/ide.css");
         return {
             'name': 'Gantt Chart',
             'description': 'Displays a gantt chart of tasks and related durations',
@@ -16,43 +22,43 @@
                     'baseType': 'FIELDNAME',
                     'sourcePropertyName': 'Data'
                 },
-			    'TaskID': {
+                'TaskID': {
                     'description': 'Field to use for task ID',
                     'baseType': 'FIELDNAME',
                     'sourcePropertyName': 'Data'
                 },
-				'StartDate': {
+                'StartDate': {
                     'description': 'Field to use for start date',
                     'baseType': 'FIELDNAME',
                     'sourcePropertyName': 'Data'
                 },
-				'EndDate': {
+                'EndDate': {
                     'description': 'Field to use for end date',
                     'baseType': 'FIELDNAME',
                     'sourcePropertyName': 'Data'
                 },
-			    'Resource': {
+                'Resource': {
                     'description': 'Field to use for resource',
                     'baseType': 'FIELDNAME',
                     'sourcePropertyName': 'Data'
                 },
-				'Completed': {
+                'Completed': {
                     'description': 'Field to use to indicate if task is completed',
                     'baseType': 'FIELDNAME',
                     'sourcePropertyName': 'Data'
                 },
-				'Relationships': {
+                'Relationships': {
                     'description': 'Field to use to indicate relationships of tasks',
                     'baseType': 'FIELDNAME',
                     'sourcePropertyName': 'Data'
                 },
-				'Duration': {
+                'Duration': {
                     'description': 'Field to use for duration of task',
                     'baseType': 'FIELDNAME',
                     'sourcePropertyName': 'Data'
                 },
                 'TooltipField1': {
-                    'description' : 'Field which will provide 1st tooltip data',
+                    'description': 'Field which will provide 1st tooltip data',
                     'isBindingTarget': true,
                     'isVisible': true,
                     'isEditable': true,
@@ -66,86 +72,94 @@
                     'baseType': 'INFOTABLE',
                     'warnIfNotBoundAsTarget': true
                 },
-				'TrackStyle': {
-					'description': 'Style for the Gantt chart tracks',
+                'TrackStyle': {
+                    'description': 'Style for the Gantt chart tracks',
                     'baseType': 'STYLEDEFINITION',
-					'defaultValue' : 'DefaultGanttTrackStyle'
-                },				
-				'AlternativeTrackStyle': {
-					'description': 'Style for the alternative Gantt chart tracks',
-                    'baseType': 'STYLEDEFINITION',
-					'defaultValue' : 'DefaultAlternativeGanttTrackStyle'
+                    'defaultValue': 'DefaultGanttTrackStyle'
                 },
-				'ArrowStyle': {
-					'description': 'Style for Gantt Chart arrows',
+                'AlternativeTrackStyle': {
+                    'description': 'Style for the alternative Gantt chart tracks',
                     'baseType': 'STYLEDEFINITION',
-					'defaultValue' : 'DefaultGanttArrowStyle'
-				}, 		
-				'ItemHeight': {
+                    'defaultValue': 'DefaultAlternativeGanttTrackStyle'
+                },
+                'ArrowStyle': {
+                    'description': 'Style for Gantt Chart arrows',
+                    'baseType': 'STYLEDEFINITION',
+                    'defaultValue': 'DefaultGanttArrowStyle'
+                },
+                'ItemHeight': {
                     'description': 'Field to use for the element height',
                     'baseType': 'NUMBER',
-                    'defaultValue': 23, 
-					'isBindingTarget': false
+                    'defaultValue': 23,
+                    'isBindingTarget': false
                 },
-				'BarCornerRadius': {
+                'BarCornerRadius': {
                     'description': 'Field to use for the bar corner radius',
                     'baseType': 'NUMBER',
-                    'defaultValue': 2, 
-					'isBindingTarget': false
+                    'defaultValue': 2,
+                    'isBindingTarget': false
                 },
-				'ShowPercentCompletion': {
+                'ShowPercentCompletion': {
                     'description': 'Show Percent Completion',
                     'baseType': 'BOOLEAN',
-                    'defaultValue': false, 
-					'isBindingTarget': false
+                    'defaultValue': false,
+                    'isBindingTarget': false
                 },
-				'ArrowRadius': {
+                'ArrowRadius': {
                     'description': 'Field to use for the arrow radius',
                     'baseType': 'NUMBER',
-                    'defaultValue': 5, 
-					'isBindingTarget': false
+                    'defaultValue': 5,
+                    'isBindingTarget': false
                 },
-				'ArrowAngle': {
+                'ArrowAngle': {
                     'description': 'Field to use for the arrow radius',
                     'baseType': 'NUMBER',
-                    'defaultValue': 40, 
-					'isBindingTarget': false
+                    'defaultValue': 40,
+                    'isBindingTarget': false
                 },
-				'isResizeable': true			
+            }
+        }
+    };
+
+    widgetServices(): Dictionary<TWWidgetService> {
+        return {};
+    };
+
+    widgetEvents(): Dictionary<TWWidgetEvent> {
+        return {
+            'DoubleClicked': {
+                'warnIfNotBound': false
             }
         };
+    }
+
+    renderHtml(): string {
+        return '<div class="widget-content widget-ganttChart"><table height="100%" width="100%"><tr><td valign="middle" align="center"><span>Gantt Chart</span></td></tr></table></div>';
     };
 
-    this.widgetEvents = function () {
-        return {
-        	'DoubleClicked': {}, 
-        };
-    };
-
-    this.renderHtml = function () {
-        var html = '';
-        html += '<div class="widget-content widget-ganttChart"><table height="100%" width="100%"><tr><td valign="middle" align="center"><span>Gantt Chart</span></td></tr></table></div>';
-        return html;
-    };
-
-    this.validate = function () {
-        var result = [];
-
-       if (this.isPropertyBoundAsTarget('Data')) {
+    validate(): { severity: string, message: string }[] {
+        const result = [];
+        if (this.isPropertyBoundAsTarget('Data')) {
             if (this.getProperty('TaskID') === undefined || this.getProperty('TaskID').length === 0) {
                 result.push({ severity: 'warning', message: 'TaskID for {target-id} must be chosen' });
             }
             if (this.getProperty('TaskName') === undefined || this.getProperty('TaskName').length === 0) {
                 result.push({ severity: 'warning', message: 'TaskName for {target-id} must be chosen' });
             }
-			if (this.getProperty('StartDate') === undefined || this.getProperty('StartDate').length === 0) {
+            if (this.getProperty('StartDate') === undefined || this.getProperty('StartDate').length === 0) {
                 result.push({ severity: 'warning', message: 'StartDate for {target-id} must be chosen' });
             }
-			if (this.getProperty('EndDate') === undefined || this.getProperty('EndDate').length === 0) {
+            if (this.getProperty('EndDate') === undefined || this.getProperty('EndDate').length === 0) {
                 result.push({ severity: 'warning', message: 'EndDate for {target-id} must be chosen' });
             }
-        } 
-
+        }
         return result;
-    };
-};
+    }
+
+    afterRender(): void {
+    }
+
+    beforeDestroy(): void {
+    }
+
+}
