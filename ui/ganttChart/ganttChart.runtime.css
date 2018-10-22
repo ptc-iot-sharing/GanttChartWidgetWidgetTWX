@@ -1,0 +1,16 @@
+.widget-ganttchart div#chart_div {
+	overflow: hidden;
+    position: absolute;
+}
+#runtime-workspace.responsive div#chart_div{
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: 0;
+	height: auto !important;
+	width: auto !important;
+}
+.responsive  div#chart_div {
+	width: auto !important;
+}

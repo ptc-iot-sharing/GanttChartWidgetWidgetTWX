@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Entities>
+	<ExtensionPackages>
+		<ExtensionPackage name="GanttChartExtension"
+			description="Extension for a Gantt Chart widget" vendor="ThingWorx"
+			packageVersion="1.6.6" minimumThingWorxVersion="6.5.0" />
+	</ExtensionPackages>
+		<StyleDefinitions>
+	    <StyleDefinition aspect.isThemeObject="true" description="Default Gantt Track Style" documentationContent="" homeMashup="" lastModifiedDate="2017-05-05T09:14:19.250-04:00" name="DefaultGanttTrackStyle" tags="">
+	      <avatar/>
+	      <DesignTimePermissions>
+	        <Create/>
+	        <Read/>
+	        <Update/>
+	        <Delete/>
+	        <Metadata/>
+	      </DesignTimePermissions>
+	      <RunTimePermissions/>
+	      <content><![CDATA[{"fontEmphasisUnderline":false,"displayString":"","textSize":"large","fontEmphasisItalic":false,"lineColor":"","backgroundColor":"#ffffff","lineStyle":"solid","lineThickness":0,"image":"","secondaryBackgroundColor":"","fontEmphasisBold":false,"foregroundColor":""}]]></content>
+	    </StyleDefinition>
+	     <StyleDefinition aspect.isThemeObject="true" description="Default Gantt Alternate Track Style" documentationContent="" homeMashup="" lastModifiedDate="2017-05-05T08:59:30.611-04:00" name="DefaultAlternativeGanttTrackStyle" tags="">
+	      <avatar/>
+	      <DesignTimePermissions>
+	        <Create/>
+	        <Read/>
+	        <Update/>
+	        <Delete/>
+	        <Metadata/>
+	      </DesignTimePermissions>
+	      <RunTimePermissions/>
+	      <content><![CDATA[{"fontEmphasisUnderline":false,"displayString":"","textSize":"normal","fontEmphasisItalic":false,"lineColor":"","backgroundColor":"#f5f5f5","lineStyle":"solid","lineThickness":0,"image":"","secondaryBackgroundColor":"","fontEmphasisBold":false,"foregroundColor":""}]]></content>
+	    </StyleDefinition>
+       <StyleDefinition aspect.isThemeObject="true" description="Default Gantt Arrow Style" documentationContent="" homeMashup="" lastModifiedDate="2017-05-05T08:59:30.611-04:00" name="DefaultGanttArrowStyle" tags="">
+	      <avatar/>
+	      <DesignTimePermissions>
+	        <Create/>
+	        <Read/>
+	        <Update/>
+	        <Delete/>
+	        <Metadata/>
+	      </DesignTimePermissions>
+	      <RunTimePermissions/>
+	      <content><![CDATA[{"fontEmphasisUnderline":false,"displayString":"","textSize":"normal","fontEmphasisItalic":false,"lineColor":"#000000","backgroundColor":"","lineStyle":"solid","lineThickness":2,"image":"","secondaryBackgroundColor":"","fontEmphasisBold":false,"foregroundColor":""}]]></content>
+	    </StyleDefinition>
+	 </StyleDefinitions>
+	<Widgets>
+		<Widget name="ganttChart">
+			<UIResources>
+				<!-- Studio ONLY -->
+				<FileResource type="CSS" file="ganttChart.ide.css"
+					description="" isDevelopment="true" isRuntime="false" />
+				<FileResource type="JS" file="ganttChart.ide.js"
+					description="" isDevelopment="true" isRuntime="false" />
+				<!-- Runtime/Squeal ONLY -->
+				<FileResource type="CSS" file="ganttChart.runtime.css"
+					description="" isDevelopment="false" isRuntime="true" />
+				<FileResource type="JS" file="ganttChart.runtime.js"
+					description="" isDevelopment="false" isRuntime="true" />
+			    <FileResource type="JS" url="https://www.gstatic.com/charts/loader.js" description="" isDevelopment="false" isRuntime="true" />
+			</UIResources>
+		</Widget>
+	</Widgets>
+</Entities>
