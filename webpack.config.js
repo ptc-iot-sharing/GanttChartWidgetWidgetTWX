@@ -106,6 +106,14 @@ module.exports = function (env, argv) {
                     loader: 'url-loader?limit=30000&name=images/[name].[ext]'
                 },
                 {
+                    test: /\.scss$/,
+                    use: [
+                        "style-loader", // creates style nodes from JS strings
+                        "css-loader", // translates CSS into CommonJS
+                        "sass-loader" // compiles Sass to CSS, using Node Sass by default
+                    ]
+                },
+                {
                     test: /\.css$/,
                     use: ['style-loader', 'css-loader']
                 }

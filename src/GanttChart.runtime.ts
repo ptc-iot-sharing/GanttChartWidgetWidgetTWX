@@ -1,5 +1,5 @@
 import { ThingworxRuntimeWidget, TWService, TWProperty } from 'typescriptwebpacksupport'
-import { GoogleCharts } from 'google-charts';
+import Gantt from 'frappe-gantt';
 
 @ThingworxRuntimeWidget
 class GanttChartWidget extends TWRuntimeWidget {
@@ -23,7 +23,16 @@ class GanttChartWidget extends TWRuntimeWidget {
             widgetWidth = this.getProperty("Width");
             widgetHeight = this.getProperty("Height");
         }
-        return '<div class="widget-content widget-ganttChart"><div id = "chart_div" width=' + widgetWidth + ' height=' + widgetHeight + '> </div></div>';
+        return `<div class="widget-content widget-ganttChart">
+                    <div class="gantt_container" width="${widgetWidth}" height="${widgetHeight}"/>
+                    <div class="view_ctrl_buttons" role="btn-group">
+                        <button type="button">Quarter Day</button>
+                        <button type="button">Half Day</button>
+                        <button type="button">Day</button>
+                        <button type="button">Week</button>
+                        <button type="button">Month</button>
+                    </div>
+                </div>`;
     };
 
     afterRender() {
@@ -90,66 +99,70 @@ class GanttChartWidget extends TWRuntimeWidget {
     }
 
     loadChart(rows, taskId, taskName, startDate, endDate, resource, relationships, duration, completed) {
-        const drawChart = () =>  {
-            let data = new GoogleCharts.api.visualization.DataTable();
-            data.addColumn('string', 'Task ID');
-            data.addColumn('string', 'Task Name');
-            data.addColumn('string', 'Resource');
-            data.addColumn('date', 'Start Date');
-            data.addColumn('date', 'End Date');
-            data.addColumn('number', 'Duration');
-            data.addColumn('number', 'Percent Complete');
-            data.addColumn('string', 'Dependencies');
-
-            let trackStyle = TW.getStyleFromStyleDefinition(this.getProperty('TrackStyle', 'DefaultGanttTrackStyle'));
-            let altTrackStyle = TW.getStyleFromStyleDefinition(this.getProperty('AlternativeTrackStyle', 'DefaultAlternativeGanttTrackStyle'));
-            let arrowStyle = TW.getStyleFromStyleDefinition(this.getProperty('ArrowStyle', 'DefaultGanttArrowStyle'));
-
-            let trackFill = trackStyle.backgroundColor;
-            let altTrackFill = altTrackStyle.backgroundColor;
-            let arrowColor = arrowStyle.lineColor;
-            let arrowWidth = arrowStyle.lineThickness;
-
-            for (let i = 0; i < rows.length; i++) {
-                let row = rows[i];
-                let percentComplete = row[completed];
-                data.addRows([
-                    [row[taskId], row[taskName], row[resource],
-                    new Date(row[startDate]), new Date(row[endDate]), row[duration], percentComplete, row[relationships]]
-                ]);
-            }
-            let barHeight = this.getProperty('ItemHeight');
-            let chartHeight = rows.length * barHeight + 50;
-            let itemHeight = barHeight - 5;
-            let cornerRadius = this.getProperty('BarCornerRadius');
-            let percentEnabled = this.getProperty('ShowPercentCompletion');
-            let arrowRadius = this.getProperty('ArrowRadius');
-            let arrowAngle = this.getProperty('ArrowAngle');
-            let options = {
-                width: "100%",
-                height: chartHeight,
-                gantt: {
-                    barHeight: itemHeight,
-                    trackHeight: barHeight,
-                    barCornerRadius: cornerRadius,
-                    arrow: { angle: arrowAngle, length: 5, spaceAfter: 5, radius: arrowRadius, color: arrowColor, width: arrowWidth },
-                    innerGridTrack: { fill: trackFill },
-                    innerGridDarkTrack: { fill: altTrackFill },
-                    percentEnabled: percentEnabled
-                }
-            };
-
-            this._currentChart = new GoogleCharts.api.visualization.Gantt(document.getElementById('chart_div'));
-
-            this._currentChart.draw(data, options);
-            GoogleCharts.api.visualization.events.addListener(this._currentChart, 'select',  (e) => {
-                let selection = this._currentChart.getSelection();
-                if (selection[0] != undefined && selection[0] != null)
-                    this.handleRowSelection(selection[0].row, true);
+        let data = [];
+        for (let i = 0; i < rows.length; i++) {
+            let row = rows[i];
+            data.push({
+                id: row[taskId],
+                name: row[taskName],
+                start: row[startDate],
+                end: row[endDate],
+                progress: row[completed],
+                dependencies: row[relationships]
             });
+        }
+
+        let trackStyle = TW.getStyleFromStyleDefinition(this.getProperty('TrackStyle', 'DefaultGanttTrackStyle'));
+        let altTrackStyle = TW.getStyleFromStyleDefinition(this.getProperty('AlternativeTrackStyle', 'DefaultAlternativeGanttTrackStyle'));
+        let arrowStyle = TW.getStyleFromStyleDefinition(this.getProperty('ArrowStyle', 'DefaultGanttArrowStyle'));
+
+        let trackFill = trackStyle.backgroundColor;
+        let altTrackFill = altTrackStyle.backgroundColor;
+        let arrowColor = arrowStyle.lineColor;
+        let arrowWidth = arrowStyle.lineThickness;
+
+
+        let barHeight = this.getProperty('ItemHeight');
+        let chartHeight = rows.length * barHeight + 50;
+        let itemHeight = barHeight - 5;
+        let cornerRadius = this.getProperty('BarCornerRadius');
+        let percentEnabled = this.getProperty('ShowPercentCompletion');
+        let arrowRadius = this.getProperty('ArrowRadius');
+        let arrowAngle = this.getProperty('ArrowAngle');
+        let options = {
+            width: "100%",
+            height: chartHeight,
+            gantt: {
+                barHeight: itemHeight,
+                trackHeight: barHeight,
+                barCornerRadius: cornerRadius,
+                arrow: { angle: arrowAngle, length: 5, spaceAfter: 5, radius: arrowRadius, color: arrowColor, width: arrowWidth },
+                innerGridTrack: { fill: trackFill },
+                innerGridDarkTrack: { fill: altTrackFill },
+                percentEnabled: percentEnabled
+            }
         };
-        GoogleCharts.load(drawChart, {
-            'packages': ['gantt']
+
+        var gantt = new Gantt(this.jqElement.find(".gantt_container")[0], data,
+        {
+            header_height: 50,
+            column_width: 30,
+            step: 24,
+            view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
+            bar_height: barHeight,
+            bar_corner_radius: this.getProperty('BarCornerRadius'),
+            arrow_curve: 5,
+            padding: 18,
+            view_mode: 'Day',
+            date_format: 'YYYY-MM-DD',
+            custom_popup_html: null
+        });
+        this.jqElement.find(".view_ctrl_buttons").on("click", "button", function() {
+            const $btn = $(this);
+            var mode = $btn.text();
+            gantt.change_view_mode(mode);
+            $btn.parent().find('button').removeClass('active');
+            $btn.addClass('active');
         });
     };
 
@@ -161,7 +174,7 @@ class GanttChartWidget extends TWRuntimeWidget {
                 this.updateSelection('Data', selectedRows);
             }
             if (this._currentChart) {
-                this._currentChart.setSelection([{row: selectedRowNo}]);
+                this._currentChart.setSelection([{ row: selectedRowNo }]);
             }
         }
     }
