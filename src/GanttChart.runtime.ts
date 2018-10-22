@@ -112,11 +112,7 @@ class GanttChartWidget extends TWRuntimeWidget {
 
             for (let i = 0; i < rows.length; i++) {
                 let row = rows[i];
-                let percentComplete = 0;
-
-                if (row[completed]) {
-                    percentComplete = 100;
-                }
+                let percentComplete = row[completed];
                 data.addRows([
                     [row[taskId], row[taskName], row[resource],
                     new Date(row[startDate]), new Date(row[endDate]), row[duration], percentComplete, row[relationships]]
