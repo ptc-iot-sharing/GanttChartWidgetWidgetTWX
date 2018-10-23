@@ -156,6 +156,10 @@ class GanttChartWidget extends TWRuntimeWidget {
         nowRect.setAttribute("class", "now-hightlight");
         nowRect.setAttribute("width", width.toString());
         nowRect.setAttribute("height", height.toString());
+        const nowRectTitle = document.createElementNS('http://www.w3.org/2000/svg', "title");
+        nowRectTitle.innerHTML = `Now: ${new Date()}`;
+        nowRect.appendChild(nowRectTitle);
+
         gantt.layers.grid.appendChild(nowRect);
     }
     beforeDestroy?(): void {
