@@ -37,28 +37,34 @@ class GanttChartWidget extends TWComposerWidget {
                     'baseType': 'FIELDNAME',
                     'sourcePropertyName': 'Data'
                 },
-                'Resource': {
-                    'description': 'Field to use for resource',
-                    'baseType': 'FIELDNAME',
-                    'sourcePropertyName': 'Data'
-                },
                 'Completed': {
                     'description': 'Field to use to indicate if task is completed',
                     'baseType': 'FIELDNAME',
                     'sourcePropertyName': 'Data'
                 },
                 'Relationships': {
-                    'description': 'Field to use to indicate relationships of tasks',
-                    'baseType': 'FIELDNAME',
-                    'sourcePropertyName': 'Data'
-                },
-                'Duration': {
-                    'description': 'Field to use for duration of task',
+                    'description': 'Field to use to indicate relationships of tasks. Comma separated TaskIDs',
                     'baseType': 'FIELDNAME',
                     'sourcePropertyName': 'Data'
                 },
                 'TooltipField1': {
                     'description': 'Field which will provide 1st tooltip data',
+                    'isBindingTarget': true,
+                    'isVisible': true,
+                    'isEditable': true,
+                    'sourcePropertyName': 'Data',
+                    'baseType': 'FIELDNAME'
+                },
+                'TooltipField2': {
+                    'description': 'Field which will provide 2nd tooltip data',
+                    'isBindingTarget': true,
+                    'isVisible': true,
+                    'isEditable': true,
+                    'sourcePropertyName': 'Data',
+                    'baseType': 'FIELDNAME'
+                },
+                'TooltipField3': {
+                    'description': 'Field which will provide 3rd tooltip data',
                     'isBindingTarget': true,
                     'isVisible': true,
                     'isEditable': true,
@@ -72,21 +78,6 @@ class GanttChartWidget extends TWComposerWidget {
                     'baseType': 'INFOTABLE',
                     'warnIfNotBoundAsTarget': true
                 },
-                'TrackStyle': {
-                    'description': 'Style for the Gantt chart tracks',
-                    'baseType': 'STYLEDEFINITION',
-                    'defaultValue': 'DefaultGanttTrackStyle'
-                },
-                'AlternativeTrackStyle': {
-                    'description': 'Style for the alternative Gantt chart tracks',
-                    'baseType': 'STYLEDEFINITION',
-                    'defaultValue': 'DefaultAlternativeGanttTrackStyle'
-                },
-                'ArrowStyle': {
-                    'description': 'Style for Gantt Chart arrows',
-                    'baseType': 'STYLEDEFINITION',
-                    'defaultValue': 'DefaultGanttArrowStyle'
-                },
                 'ItemHeight': {
                     'description': 'Field to use for the element height',
                     'baseType': 'NUMBER',
@@ -99,24 +90,44 @@ class GanttChartWidget extends TWComposerWidget {
                     'defaultValue': 2,
                     'isBindingTarget': false
                 },
-                'ShowPercentCompletion': {
-                    'description': 'Show Percent Completion',
-                    'baseType': 'BOOLEAN',
-                    'defaultValue': false,
-                    'isBindingTarget': false
-                },
                 'ArrowRadius': {
                     'description': 'Field to use for the arrow radius',
                     'baseType': 'NUMBER',
                     'defaultValue': 5,
                     'isBindingTarget': false
                 },
-                'ArrowAngle': {
-                    'description': 'Field to use for the arrow radius',
+                'HeaderHeight': {
+                    'description': 'How tall the header should be',
                     'baseType': 'NUMBER',
-                    'defaultValue': 40,
+                    'defaultValue': 50,
                     'isBindingTarget': false
                 },
+                'ColumnWidth': {
+                    'description': 'How big each column should be (distance between two dates)',
+                    'baseType': 'NUMBER',
+                    'defaultValue': 30,
+                    'isBindingTarget': false
+                },
+                'ViewMode': {
+                    'description': 'Granularity of the minimum interval displayed',
+                    'baseType': 'STRING',
+                    'defaultValue': 'Day',
+                    'selectOptions': ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'].map((option) => {return {text: option, value: option}}),
+                    'isBindingTarget': true,
+                    'isBindingSource': true
+                },
+                'Padding': {
+                    'description': 'Space between eleemnts',
+                    'baseType': 'NUMBER',
+                    'defaultValue': 18,
+                    'isBindingTarget': false
+                },
+                'DateFormat': {
+                    'description': 'How to format the dates in the widget',
+                    'baseType': 'STRING',
+                    'defaultValue': 'YYYY-MM-DD',
+                    'isLocalizable': true
+                }
             }
         }
     };

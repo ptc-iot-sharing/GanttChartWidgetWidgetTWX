@@ -11,7 +11,16 @@ class GanttChartWidget extends TWRuntimeWidget {
         };
     }
 
-    _currentChart: any;
+    currentGanttChart: any;
+    currentViewMode: string;
+
+    @TWProperty("ViewMode")
+    set viewMode(value) {
+        if (value) {
+            this.currentViewMode = value;
+            this.currentGanttChart.change_view_mode(value);
+        }
+    }
 
     renderHtml(): string {
         require("./styles/runtime.css");
@@ -23,15 +32,9 @@ class GanttChartWidget extends TWRuntimeWidget {
             widgetWidth = this.getProperty("Width");
             widgetHeight = this.getProperty("Height");
         }
+        this.currentViewMode = this.getProperty("ViewMode");
         return `<div class="widget-content widget-ganttChart">
                     <div class="gantt_container" width="${widgetWidth}" height="${widgetHeight}"/>
-                    <div class="view_ctrl_buttons" role="btn-group">
-                        <button type="button">Quarter Day</button>
-                        <button type="button">Half Day</button>
-                        <button type="button">Day</button>
-                        <button type="button">Week</button>
-                        <button type="button">Month</button>
-                    </div>
                 </div>`;
     };
 
@@ -42,18 +45,8 @@ class GanttChartWidget extends TWRuntimeWidget {
         if (info.TargetProperty === "Data") {
             let rows = info.ActualDataRows;
 
-            this.assignRowNumbers(rows);
-
-            let taskName = this.getProperty('TaskName');
-            let taskId = this.getProperty('TaskID');
-            let startDate = this.getProperty('StartDate');
-            let endDate = this.getProperty('EndDate');
-            let resource = this.getProperty('Resource');
-            let relationships = this.getProperty('Relationships');
-            let duration = this.getProperty('Duration');
-            let completed = this.getProperty('Completed');
-
-            this.loadChart(rows, taskId, taskName, startDate, endDate, resource, relationships, duration, completed);
+            this.loadChart(rows, this.getProperty('TaskID'), this.getProperty('TaskName'), this.getProperty('StartDate'),
+                this.getProperty('EndDate'), this.getProperty('Relationships'), this.getProperty('Completed'));
 
             let selectedRowIndices = info.SelectedRowIndices;
 
@@ -79,26 +72,11 @@ class GanttChartWidget extends TWRuntimeWidget {
 
     handleSelectionUpdate(propertyName, selectedRows, selectedRowsIndices) {
         if (propertyName == "Data") {
-            let ignoreSelectionEvent = true;
-
-            let nSelectedRows = selectedRows.length;
-
-            if (nSelectedRows > 0) {
-                for (let x = 0; x < nSelectedRows; x++) {
-                    if (selectedRows[x]._isSelected === true) {
-                        this.handleRowSelection(selectedRows[x]["_row_"], !ignoreSelectionEvent);
-                        ignoreSelectionEvent = false;
-                        break;
-                    }
-                }
-            } else
-                this.handleRowSelection(undefined);
-
-            ignoreSelectionEvent = false;
+            // TODO: implement selection
         }
     }
 
-    loadChart(rows, taskId, taskName, startDate, endDate, resource, relationships, duration, completed) {
+    loadChart(rows, taskId, taskName, startDate, endDate, relationships, completed) {
         let data = [];
         for (let i = 0; i < rows.length; i++) {
             let row = rows[i];
@@ -112,51 +90,30 @@ class GanttChartWidget extends TWRuntimeWidget {
             });
         }
 
-        let trackStyle = TW.getStyleFromStyleDefinition(this.getProperty('TrackStyle', 'DefaultGanttTrackStyle'));
-        let altTrackStyle = TW.getStyleFromStyleDefinition(this.getProperty('AlternativeTrackStyle', 'DefaultAlternativeGanttTrackStyle'));
-        let arrowStyle = TW.getStyleFromStyleDefinition(this.getProperty('ArrowStyle', 'DefaultGanttArrowStyle'));
-
-        let trackFill = trackStyle.backgroundColor;
-        let altTrackFill = altTrackStyle.backgroundColor;
-        let arrowColor = arrowStyle.lineColor;
-        let arrowWidth = arrowStyle.lineThickness;
-
-
-        let barHeight = this.getProperty('ItemHeight');
-        let chartHeight = rows.length * barHeight + 50;
-        let itemHeight = barHeight - 5;
-        let cornerRadius = this.getProperty('BarCornerRadius');
-        let percentEnabled = this.getProperty('ShowPercentCompletion');
-        let arrowRadius = this.getProperty('ArrowRadius');
-        let arrowAngle = this.getProperty('ArrowAngle');
-        let options = {
-            width: "100%",
-            height: chartHeight,
-            gantt: {
-                barHeight: itemHeight,
-                trackHeight: barHeight,
-                barCornerRadius: cornerRadius,
-                arrow: { angle: arrowAngle, length: 5, spaceAfter: 5, radius: arrowRadius, color: arrowColor, width: arrowWidth },
-                innerGridTrack: { fill: trackFill },
-                innerGridDarkTrack: { fill: altTrackFill },
-                percentEnabled: percentEnabled
-            }
-        };
-
-        var gantt = new Gantt(this.jqElement.find(".gantt_container")[0], data,
+        this.currentGanttChart = new Gantt(this.jqElement.find(".gantt_container")[0], data,
             {
-                header_height: 50,
-                column_width: 30,
-                step: 24,
+                header_height: this.getProperty('HeaderHeight'),
+                column_width: this.getProperty('ColumnWidth'),
                 view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
-                bar_height: barHeight,
+                bar_height: this.getProperty('ItemHeight'),
                 bar_corner_radius: this.getProperty('BarCornerRadius'),
                 arrow_curve: this.getProperty("ArrowRadius"),
-                padding: 18,
-                view_mode: 'Day',
-                date_format: 'YYYY-MM-DD',
-                custom_popup_html: null
+                padding: this.getProperty('Padding'),
+                view_mode: this.currentViewMode,
+                date_format: TW.Runtime.convertLocalizableString(this.getProperty('DateFormat')),
+                custom_popup_html: null,
+                on_view_change: (mode) => {
+                    this.currentViewMode = mode;
+                    this.setProperty("ViewMode", mode);
+                    if (this.currentGanttChart) {
+                        this.drawNowBar(this.currentGanttChart);
+                    }
+                }
             });
+        this.drawNowBar(this.currentGanttChart);
+    };
+
+    drawNowBar(gantt: any) {
         // add the current timestamp
         const x =
             (Date.now() - gantt.gantt_start.getTime()) / (1000 * 60 * 60 * gantt.options.step) * gantt.options.column_width;
@@ -175,41 +132,7 @@ class GanttChartWidget extends TWRuntimeWidget {
         nowRect.setAttribute("width", width.toString());
         nowRect.setAttribute("height", height.toString());
         gantt.layers.grid.appendChild(nowRect);
-
-        this.jqElement.find(".view_ctrl_buttons").on("click", "button", function () {
-            const $btn = $(this);
-            var mode = $btn.text();
-            gantt.change_view_mode(mode);
-            $btn.parent().find('button').removeClass('active');
-            $btn.addClass('active');
-        });
-    };
-
-    handleRowSelection(selectedRowNo, propagateSelection?) {
-        if (selectedRowNo !== undefined) {
-            let selectedRows = [selectedRowNo];
-
-            if (propagateSelection) {
-                this.updateSelection('Data', selectedRows);
-            }
-            if (this._currentChart) {
-                this._currentChart.setSelection([{ row: selectedRowNo }]);
-            }
-        }
     }
-
-    assignRowNumbers(rows) {
-        for (const rowid in rows) {
-            let row = rows[rowid];
-            row["_row_"] = rowid;
-        }
-    };
-
-    @TWService("TestService")
-    testService(): void {
-        alert("Called via binding");
-    }
-
     beforeDestroy?(): void {
         // resetting current widget
     }
