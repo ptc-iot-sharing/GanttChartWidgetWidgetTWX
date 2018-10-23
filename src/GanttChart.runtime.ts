@@ -144,20 +144,39 @@ class GanttChartWidget extends TWRuntimeWidget {
         };
 
         var gantt = new Gantt(this.jqElement.find(".gantt_container")[0], data,
-        {
-            header_height: 50,
-            column_width: 30,
-            step: 24,
-            view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
-            bar_height: barHeight,
-            bar_corner_radius: this.getProperty('BarCornerRadius'),
-            arrow_curve: 5,
-            padding: 18,
-            view_mode: 'Day',
-            date_format: 'YYYY-MM-DD',
-            custom_popup_html: null
-        });
-        this.jqElement.find(".view_ctrl_buttons").on("click", "button", function() {
+            {
+                header_height: 50,
+                column_width: 30,
+                step: 24,
+                view_modes: ['Quarter Day', 'Half Day', 'Day', 'Week', 'Month'],
+                bar_height: barHeight,
+                bar_corner_radius: this.getProperty('BarCornerRadius'),
+                arrow_curve: this.getProperty("ArrowRadius"),
+                padding: 18,
+                view_mode: 'Day',
+                date_format: 'YYYY-MM-DD',
+                custom_popup_html: null
+            });
+        // add the current timestamp
+        const x =
+            (Date.now() - gantt.gantt_start.getTime()) / (1000 * 60 * 60 * gantt.options.step) * gantt.options.column_width;
+        const y = 0;
+
+        const width = 2;
+        const height =
+            (gantt.options.bar_height + gantt.options.padding) *
+            gantt.tasks.length +
+            gantt.options.header_height +
+            gantt.options.padding / 2;
+        const nowRect = document.createElementNS('http://www.w3.org/2000/svg', "rect");
+        nowRect.setAttribute("x", Math.floor(x).toString());
+        nowRect.setAttribute("y", y.toString());
+        nowRect.setAttribute("class", "now-hightlight");
+        nowRect.setAttribute("width", width.toString());
+        nowRect.setAttribute("height", height.toString());
+        gantt.layers.grid.appendChild(nowRect);
+
+        this.jqElement.find(".view_ctrl_buttons").on("click", "button", function () {
             const $btn = $(this);
             var mode = $btn.text();
             gantt.change_view_mode(mode);
