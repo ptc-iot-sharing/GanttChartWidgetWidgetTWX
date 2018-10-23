@@ -84,6 +84,7 @@ class GanttChartWidget extends TWRuntimeWidget {
         for (let i = 0; i < rows.length; i++) {
             let row = rows[i];
             data.push({
+                index: i,
                 id: row[taskId],
                 name: row[taskName],
                 start: row[startDate],
@@ -129,7 +130,10 @@ class GanttChartWidget extends TWRuntimeWidget {
                     if (this.currentGanttChart) {
                         this.drawNowBar(this.currentGanttChart);
                     }
-                }
+                },
+                on_click: (task) => {
+                    this.updateSelection('Data', [task.index]);
+                },
             });
         this.drawNowBar(this.currentGanttChart);
     };
