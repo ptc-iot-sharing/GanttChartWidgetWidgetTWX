@@ -6,6 +6,7 @@ class GanttChartWidget extends TWRuntimeWidget {
     serviceInvoked() { };
     currentGanttChart: any;
     currentViewMode: string;
+    elementStyleSheet: CSSStyleSheet;
 
     @TWProperty("ViewMode")
     set viewMode(value) {
@@ -32,19 +33,25 @@ class GanttChartWidget extends TWRuntimeWidget {
     };
 
     createRule(name,rules){
-        const style = document.createElement('style');
-        style.type = 'text/css';
-        document.getElementsByTagName('head')[0].appendChild(style);
-        const sheet = style.sheet as CSSStyleSheet;
-        if(!sheet || !sheet.insertRule)
-            sheet.addRule(name, rules);
+        if(!this.elementStyleSheet) {
+            const style = document.createElement('style');
+            style.type = 'text/css';
+            document.getElementsByTagName('head')[0].appendChild(style);
+            this.elementStyleSheet = style.sheet as CSSStyleSheet;
+        }
+
+        if(!this.elementStyleSheet || !this.elementStyleSheet.insertRule)
+            this.elementStyleSheet.addRule(name, rules);
         else
-            sheet.insertRule(name+"{"+rules+"}",0);
+            this.elementStyleSheet.insertRule(name+"{"+rules+"}",0);
     }
 
     afterRender() {
         if(this.getProperty("AlwaysShowHandles")) {
-            this.createRule(".gantt_container .handle-group > rect", "opacity: 0.7; visibility: visible;")
+            this.createRule(".gantt_container .handle-group > rect", "opacity: 0.7; visibility: visible;");
+        }
+        if(this.getProperty("ShowBaselines")) {
+            this.createRule('.gantt_container .bar-progress', 'transform: translateY(-5px);');
         }
     }
 

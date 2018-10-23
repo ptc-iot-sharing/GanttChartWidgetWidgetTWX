@@ -132,6 +132,11 @@ class GanttChartWidget extends TWComposerWidget {
                     'description': 'Always show the handles for tasks. Especially useful for showing tasks over limit',
                     'baseType': 'BOOLEAN',
                     'defaultValue': false
+                },
+                'ShowBaselines': {
+                    'description': 'For percentages > 100%, show the baseline underneath the values',
+                    'baseType': 'BOOLEAN',
+                    'defaultValue': false
                 }
             }
         }
