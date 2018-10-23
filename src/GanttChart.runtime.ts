@@ -112,7 +112,7 @@ class GanttChartWidget extends TWRuntimeWidget {
                         return `<p><strong>${tooltip}</strong>: ${task.parentObj[tooltip]}</p>`
                     }).join("")}`;
 
-                    const percentageReport = task.progress > 100 ? `100% Completed, ${task.progress -100}% overtime!`: `${task.progress} completed!`;
+                    const percentageReport = task.progress > 100 ? `100% Completed, ${task.progress -100}% overtime!`: `${task.progress}% completed!`;
                     return `
                     <div class="gantt-details-container" style="width: 200px">
                         <div class="title">${task.name}</div>
