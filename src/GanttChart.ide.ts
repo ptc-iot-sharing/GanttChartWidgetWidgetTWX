@@ -127,6 +127,11 @@ class GanttChartWidget extends TWComposerWidget {
                     'baseType': 'STRING',
                     'defaultValue': 'YYYY-MM-DD',
                     'isLocalizable': true
+                },
+                'AlwaysShowHandles': {
+                    'description': 'Always show the handles for tasks. Especially useful for showing tasks over limit',
+                    'baseType': 'BOOLEAN',
+                    'defaultValue': false
                 }
             }
         }

@@ -1,16 +1,9 @@
-import { ThingworxRuntimeWidget, TWService, TWProperty } from 'typescriptwebpacksupport'
+import { ThingworxRuntimeWidget, TWProperty } from 'typescriptwebpacksupport'
 import Gantt from 'frappe-gantt';
 
 @ThingworxRuntimeWidget
 class GanttChartWidget extends TWRuntimeWidget {
     serviceInvoked() { };
-    runtimeProperties() {
-        return {
-            'needsDataLoadingAndError': true,
-            'supportsAutoResize': true
-        };
-    }
-
     currentGanttChart: any;
     currentViewMode: string;
 
@@ -38,7 +31,21 @@ class GanttChartWidget extends TWRuntimeWidget {
                 </div>`;
     };
 
+    createRule(name,rules){
+        const style = document.createElement('style');
+        style.type = 'text/css';
+        document.getElementsByTagName('head')[0].appendChild(style);
+        const sheet = style.sheet as CSSStyleSheet;
+        if(!sheet || !sheet.insertRule)
+            sheet.addRule(name, rules);
+        else
+            sheet.insertRule(name+"{"+rules+"}",0);
+    }
+
     afterRender() {
+        if(this.getProperty("AlwaysShowHandles")) {
+            this.createRule(".gantt_container .handle-group > rect", "opacity: 0.7; visibility: visible;")
+        }
     }
 
     updateProperty(info: TWUpdatePropertyInfo) {
@@ -56,26 +63,6 @@ class GanttChartWidget extends TWRuntimeWidget {
             }
             this.loadChart(rows, this.getProperty('TaskID'), this.getProperty('TaskName'), this.getProperty('StartDate'),
                 this.getProperty('EndDate'), this.getProperty('Relationships'), this.getProperty('Completed'), tooltips);
-
-            let selectedRowIndices = info.SelectedRowIndices;
-
-            if (selectedRowIndices !== undefined) {
-                if (selectedRowIndices.length > 0) {
-                    let selectedRows = new Array();
-                    selectedRows.push(rows[selectedRowIndices[0]]);
-                    setTimeout(() => {
-                        this.handleSelectionUpdate("Data", selectedRows, selectedRowIndices);
-                    }, 100);
-                } else {
-                    setTimeout(() => {
-                        this.handleSelectionUpdate("Data", [], []);
-                    }, 100);
-                }
-            } else {
-                setTimeout(() => {
-                    this.handleSelectionUpdate("Data", [], []);
-                }, 100);
-            }
         }
     }
 
@@ -113,16 +100,18 @@ class GanttChartWidget extends TWRuntimeWidget {
                 date_format: TW.Runtime.convertLocalizableString(this.getProperty('DateFormat')),
                 custom_popup_html: (task) => {
                     const end_date = task._end.toLocaleDateString("en-US");
-                    let contents = `${tooltips.map((tooltip) => {
+                    const contents = `${tooltips.map((tooltip) => {
                         return `<p><strong>${tooltip}</strong>: ${task.parentObj[tooltip]}</p>`
                     }).join("")}`;
+
+                    const percentageReport = task.progress > 100 ? `100% Completed, ${task.progress -100}% overtime!`: `${task.progress} completed!`;
                     return `
                     <div class="gantt-details-container" style="width: 200px">
                         <div class="title">${task.name}</div>
                         <div class="subtitle">
                             ${contents}
-                            <p>Expected to finish by ${end_date}</p>
-                            <p>${task.progress}% completed!</p>
+                            <p>${task.progress > 100 ? 'Finished on: ' : 'Expected to finish by: '}${end_date}</p>
+                            <p>${percentageReport}</p>
                         </div>
                     </div>
                     `;

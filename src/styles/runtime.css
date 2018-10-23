@@ -1,16 +1,6 @@
-.widget-ganttchart div#chart_div {
-	overflow: hidden;
-    position: absolute;
+.gantt_container .bar-progress {
+	opacity: 0.7;
 }
-#runtime-workspace.responsive div#chart_div{
-	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	top: 0;
-	height: auto !important;
-	width: auto !important;
-}
-.responsive  div#chart_div {
-	width: auto !important;
+.gantt-container .popup-wrapper .title {
+	font-size: 15px;
 }
