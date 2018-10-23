@@ -47,6 +47,11 @@ class GanttChartWidget extends TWComposerWidget {
                     'baseType': 'FIELDNAME',
                     'sourcePropertyName': 'Data'
                 },
+                'CustomClass': {
+                    'description': 'Custom class to use for drawing this element',
+                    'baseType': 'FIELDNAME',
+                    'sourcePropertyName': 'Data'
+                },
                 'TooltipField1': {
                     'description': 'Field which will provide 1st tooltip data',
                     'isBindingTarget': true,

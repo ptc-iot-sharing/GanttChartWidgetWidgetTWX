@@ -69,7 +69,7 @@ class GanttChartWidget extends TWRuntimeWidget {
                 tooltips.push(this.getProperty("TooltipField3"));
             }
             this.loadChart(rows, this.getProperty('TaskID'), this.getProperty('TaskName'), this.getProperty('StartDate'),
-                this.getProperty('EndDate'), this.getProperty('Relationships'), this.getProperty('Completed'), tooltips);
+                this.getProperty('EndDate'), this.getProperty('Relationships'), this.getProperty('Completed'), this.getProperty("CustomClass"), tooltips);
         }
     }
 
@@ -79,7 +79,7 @@ class GanttChartWidget extends TWRuntimeWidget {
         }
     }
 
-    loadChart(rows, taskId, taskName, startDate, endDate, relationships, completed, tooltips: string[]) {
+    loadChart(rows, taskId, taskName, startDate, endDate, relationships, completed, customClass, tooltips: string[]) {
         let data = [];
         for (let i = 0; i < rows.length; i++) {
             let row = rows[i];
@@ -91,6 +91,7 @@ class GanttChartWidget extends TWRuntimeWidget {
                 end: row[endDate],
                 progress: row[completed],
                 dependencies: row[relationships],
+                custom_class: row[customClass],
                 parentObj: row
             });
         }
