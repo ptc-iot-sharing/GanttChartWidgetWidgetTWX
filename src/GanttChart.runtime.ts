@@ -44,9 +44,18 @@ class GanttChartWidget extends TWRuntimeWidget {
     updateProperty(info: TWUpdatePropertyInfo) {
         if (info.TargetProperty === "Data") {
             let rows = info.ActualDataRows;
-
+            let tooltips: string[] = [];
+            if (this.getProperty("TooltipField1")) {
+                tooltips.push(this.getProperty("TooltipField1"));
+            }
+            if (this.getProperty("TooltipField2")) {
+                tooltips.push(this.getProperty("TooltipField2"));
+            }
+            if (this.getProperty("TooltipField3")) {
+                tooltips.push(this.getProperty("TooltipField3"));
+            }
             this.loadChart(rows, this.getProperty('TaskID'), this.getProperty('TaskName'), this.getProperty('StartDate'),
-                this.getProperty('EndDate'), this.getProperty('Relationships'), this.getProperty('Completed'));
+                this.getProperty('EndDate'), this.getProperty('Relationships'), this.getProperty('Completed'), tooltips);
 
             let selectedRowIndices = info.SelectedRowIndices;
 
@@ -76,7 +85,7 @@ class GanttChartWidget extends TWRuntimeWidget {
         }
     }
 
-    loadChart(rows, taskId, taskName, startDate, endDate, relationships, completed) {
+    loadChart(rows, taskId, taskName, startDate, endDate, relationships, completed, tooltips: string[]) {
         let data = [];
         for (let i = 0; i < rows.length; i++) {
             let row = rows[i];
@@ -86,7 +95,8 @@ class GanttChartWidget extends TWRuntimeWidget {
                 start: row[startDate],
                 end: row[endDate],
                 progress: row[completed],
-                dependencies: row[relationships]
+                dependencies: row[relationships],
+                parentObj: row
             });
         }
 
@@ -101,7 +111,22 @@ class GanttChartWidget extends TWRuntimeWidget {
                 padding: this.getProperty('Padding'),
                 view_mode: this.currentViewMode,
                 date_format: TW.Runtime.convertLocalizableString(this.getProperty('DateFormat')),
-                custom_popup_html: null,
+                custom_popup_html: (task) => {
+                    const end_date = task._end.toLocaleDateString("en-US");
+                    let contents = `${tooltips.map((tooltip) => {
+                        return `<p><strong>${tooltip}</strong>: ${task.parentObj[tooltip]}</p>`
+                    }).join("")}`;
+                    return `
+                    <div class="gantt-details-container" style="width: 200px">
+                        <div class="title">${task.name}</div>
+                        <div class="subtitle">
+                            ${contents}
+                            <p>Expected to finish by ${end_date}</p>
+                            <p>${task.progress}% completed!</p>
+                        </div>
+                    </div>
+                    `;
+                },
                 on_view_change: (mode) => {
                     this.currentViewMode = mode;
                     this.setProperty("ViewMode", mode);
