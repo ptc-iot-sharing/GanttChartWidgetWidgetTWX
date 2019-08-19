@@ -1,6 +1,6 @@
 {
     "name": "GanttChart",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Gantt chart widget based on google charts",
     "packageName": "GanttChartExtension",
     "thingworxServer": "http://localhost:8016",
