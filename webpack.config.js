@@ -1,16 +1,17 @@
 'use strict';
-var path = require('path');
-var fs = require('fs');
-var webpack = require('webpack');
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin')
-var CopyWebpackPlugin = require('copy-webpack-plugin');
+const path = require('path');
+const fs = require('fs');
+const webpack = require('webpack');
+const TerserPlugin = require('terser-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const EncodingPlugin = require('webpack-encoding-plugin');
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 // enable cleaning of the build and zip directories
-var CleanWebpackPlugin = require('clean-webpack-plugin');
+const CleanWebpackPlugin = require('clean-webpack-plugin').CleanWebpackPlugin;
 // enable building of the widget
-var ZipPlugin = require('zip-webpack-plugin');
+const ZipPlugin = require('zip-webpack-plugin');
 // enable reading master data from the package.json file
 let packageJson = require('./package.json');
-var DeclarationBundlerPlugin = require('dtsbundler-webpack-plugin');
 // look if we are in initialization mode based on the --init argument
 const isInitialization = process.argv.indexOf('--env.init') !== -1;
 // look if we are in initialization mode based on the --init argument
@@ -21,6 +22,17 @@ let packageVersion = packageJson.version.split('.');
 packageJson.version = `${packageVersion[0]}.${packageVersion[1]}.${parseInt(packageVersion[2])}`;
 console.log(`Incremented package version to ${packageJson.version}`);
 fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 4));
+
+var babelLoader = {
+    loader: 'babel-loader',
+    options: {
+        babelrc: false,
+        cacheDirectory: true,
+        presets: [['@babel/preset-env']],
+        plugins: ["@babel/plugin-syntax-dynamic-import"]
+    }
+};
+
 module.exports = function (env, argv) {
     const packageName = packageJson.packageName || `${packageJson.name}_ExtensionPackage`;
 
@@ -45,17 +57,16 @@ module.exports = function (env, argv) {
         },
         plugins: [
             // delete build and zip folders
-            new CleanWebpackPlugin(['build', 'zip']),
+            new CleanWebpackPlugin({
+                cleanOnceBeforeBuildPatterns: [path.resolve('build/**'), path.resolve('zip/**')]
+            }),
             // in case we just want to copy some resources directly to the widget package, then do it here
-            new CopyWebpackPlugin([{ from: 'src/static', to: 'static' }]),
             // in case the extension contains entities, copy them as well
-            new CopyWebpackPlugin([{ from: 'Entities/*.xml', to: '../../' }]),
+            new CopyWebpackPlugin([{ from: 'Entities', to: '../../Entities' }]),
             // generates the metadata xml file and adds it to the archive
             new WidgetMetadataGenerator(),
-            new DeclarationBundlerPlugin({
-                moduleName: `${packageJson.name}`,
-                out: path.join('typings', `${packageJson.name}.d.ts`),
-                excludePattern: new RegExp(`${packageJson.name}\.ide\.d\.ts`)
+            new webpack.DefinePlugin({
+                'WIDGET_PATH_URL': JSON.stringify(`../Common/extensions/${packageName}/ui/${packageJson.name}/`)
             }),
             // create the extension zip
             new ZipPlugin({
@@ -73,36 +84,41 @@ module.exports = function (env, argv) {
                     }
                 },
                 exclude: [/htmlDemo/, isProduction ? /(.*)\.map$/ : /a^/]
-            })
+            }),
+            new EncodingPlugin({
+                encoding: 'utf8'
+            }),
+            new ForkTsCheckerWebpackPlugin()
         ],
         // if we are in development mode, then use "eval-source-map".
         // See https://webpack.js.org/configuration/devtool/ for all available options
         devtool: isProduction ? undefined : 'eval-source-map',
         resolve: {
             // Add '.ts' and '.tsx' as resolvable extensions.
-            extensions: ['.ts', '.tsx', '.js', '.json']
+            extensions: ['.ts', '.tsx', '.js', '.json'],
+            modules: ['node_modules', 'src']
         },
 
         module: {
             rules: [
                 {
-                    test: /(\.jsx|\.js)$/,
-                    exclude: /(node_modules|bower_components)/,
-                    use: {
-                        loader: 'babel-loader',
-                        options: {
-                            presets: ['@babel/preset-env']
+                    test: /\.ts(x?)$/,
+                    exclude: /node_modules/,
+                    use: [
+                        babelLoader,
+                        {
+                            loader: 'ts-loader'
                         }
-                    }
+                    ]
+                }, {
+                    test: /\.js$/,
+                    exclude: /(node_modules|bower_components|src[\\/]monaco-editor[\\/]esm)/,
+                    use: [
+                        babelLoader
+                    ]
                 },
-                // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
                 {
-                    test: /\.tsx?$/,
-                    use: 'ts-loader',
-                    exclude: /node_modules/
-                },
-                {
-                    test: /\.(png|jp(e*)g|svg|xml)$/,
+                    test: /\.(png|jp(e*)g|svg|xml|d\.ts)$/,
                     loader: 'url-loader?limit=30000&name=images/[name].[ext]'
                 },
                 {
@@ -124,14 +140,15 @@ module.exports = function (env, argv) {
     if (isProduction) {
         result.optimization = {
             minimizer: [
-                new UglifyJSPlugin({
-                    uglifyOptions: {
-                        beautify: false,
+                new TerserPlugin({
+                    cache: true,
+                    parallel: true,
+                    terserOptions: {
                         compress: true,
-                        comments: false,
                         mangle: false,
                         toplevel: false,
-                        keep_fnames: true
+                        keep_fnames: true,
+                        sourceMap: true
                     }
                 })
             ]
@@ -228,7 +245,7 @@ module.exports = function (env, argv) {
     if (uploadEnabled) {
         result.plugins.push(
             new UploadToThingworxPlugin({
-                thingworxServer: packageJson.thingworxServer,
+                thingworxServer: packageJson.thingworxServer.endsWith('/') ? packageJson.thingworxServer.slice(0, -1) : packageJson.thingworxServer,
                 thingworxUser: packageJson.thingworxUser,
                 thingworxPassword: packageJson.thingworxPassword
             })

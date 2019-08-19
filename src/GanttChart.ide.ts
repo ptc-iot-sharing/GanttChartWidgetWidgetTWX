@@ -1,7 +1,7 @@
 // automatically import the css file
-import { ThingworxComposerWidget } from 'typescriptwebpacksupport';
+import { ThingworxComposerWidget, TWNamedComposerWidget } from 'typescriptwebpacksupport';
 
-@ThingworxComposerWidget
+@TWNamedComposerWidget("ganttChart")
 class GanttChartWidget extends TWComposerWidget {
 
     widgetIconUrl(): string {

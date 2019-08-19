@@ -1,7 +1,7 @@
-import { ThingworxRuntimeWidget, TWProperty } from 'typescriptwebpacksupport'
+import { ThingworxRuntimeWidget, TWProperty, TWNamedRuntimeWidget } from 'typescriptwebpacksupport'
 import Gantt from 'frappe-gantt';
 
-@ThingworxRuntimeWidget
+@TWNamedRuntimeWidget("ganttChart")
 class GanttChartWidget extends TWRuntimeWidget {
     serviceInvoked() { };
     currentGanttChart: any;
