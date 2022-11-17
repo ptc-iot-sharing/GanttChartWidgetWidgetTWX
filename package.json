@@ -50,7 +50,7 @@
         "typescript": "^3.5.3",
         "url-loader": "^2.1.0",
         "webpack": "^4.39.2",
-        "webpack-cli": "^3.3.7",
+        "webpack-cli": "^3.3.12",
         "webpack-dev-server": "^3.8.0",
         "webpack-encoding-plugin": "^0.3.1",
         "xml2js": "^0.4.19",
